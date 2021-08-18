@@ -13,7 +13,7 @@ def cli():
         ioc.clean()
         ioc.detect()
 
-        if not ioc.type:
+        if not ioc.ioc_type:
             continue
 
         stix2_obj = ioc.stix2()

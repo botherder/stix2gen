@@ -31,9 +31,9 @@ IOC_VALIDATORS = [
 
 class IOC(object):
 
-    def __init__(self, ioc):
+    def __init__(self, ioc, ioc_type=None):
         self.ioc = ioc
-        self.type = None
+        self.ioc_type = ioc_type
         self.stix2_pattern = None
 
     def clean(self):
@@ -42,11 +42,11 @@ class IOC(object):
     def detect(self):
         for validator in IOC_VALIDATORS:
             if validator["validator"](self.ioc):
-                self.type = validator.get("type")
+                self.ioc_type = validator.get("type")
                 self.stix2_pattern = validator.get("stix2_pattern")
 
     def stix2(self):
-        if not self.type:
+        if not self.ioc_type:
             return None
 
         return Indicator(indicator_types=["malicious-activity"],
