@@ -2,6 +2,4 @@
 # Copyright (c) 2021-2022 Claudio Guarnieri
 # Please check the file 'LICENSE' for copying permission.
 
-from setuptools import setup
-
-setup()
+STIX2GEN_VERSION = "1.0"

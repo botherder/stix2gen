@@ -1,12 +1,25 @@
+# stix2gen
+# Copyright (c) 2021-2022 Claudio Guarnieri
+# Please check the file 'LICENSE' for copying permission.
+
 import validators
-from stix2.v21 import Bundle, DomainName, Indicator, Malware, Relationship
+from stix2.v21 import Indicator
 
+from .custom_validators import validator_sha256
 
+IOC_TYPE_SHA256 = "sha256"
 IOC_TYPE_DOMAIN = "domain"
 IOC_TYPE_EMAIL = "email"
 IOC_TYPE_IPV4 = "ipv4"
 IOC_TYPE_IPV6 = "ipv6"
-IOC_VALIDATORS = [
+IOC_TYPE_APP_ID = "app_id"
+
+IOC_MODELS = [
+    {
+        "type": IOC_TYPE_SHA256,
+        "validator": validator_sha256,
+        "stix2_pattern": "[file:hashes.sha256='{value}']"
+    },
     {
         "type": IOC_TYPE_DOMAIN,
         "validator": validators.domain,
@@ -26,8 +39,14 @@ IOC_VALIDATORS = [
         "type": IOC_TYPE_IPV6,
         "validator": validators.ipv6,
         "stix2_pattern": "[ipv6-addr:value='{value}']",
+    },
+    {
+        "type": IOC_TYPE_APP_ID,
+        "validator": None,
+        "stix2_pattern": "[app:id='{value}']",
     }
 ]
+
 
 class IOC(object):
 
@@ -35,15 +54,26 @@ class IOC(object):
         self.ioc = ioc
         self.ioc_type = ioc_type
         self.stix2_pattern = None
+        if self.ioc_type:
+            for ioc_model in IOC_MODELS:
+                if ioc_model["type"] != self.ioc_type:
+                    continue
+
+                self.stix2_pattern = ioc_model.get("stix2_pattern")
+                break
 
     def clean(self):
         self.ioc = self.ioc.strip().replace("[.]", ".").replace("[@]", "@")
 
     def detect(self):
-        for validator in IOC_VALIDATORS:
+        for validator in IOC_MODELS:
+            if not validator.get("validator"):
+                continue
+
             if validator["validator"](self.ioc):
                 self.ioc_type = validator.get("type")
                 self.stix2_pattern = validator.get("stix2_pattern")
+                return
 
     def stix2(self):
         if not self.ioc_type:
