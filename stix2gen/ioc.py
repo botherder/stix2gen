@@ -5,8 +5,6 @@
 import validators
 from stix2.v21 import Indicator
 
-from .custom_validators import validator_sha256
-
 IOC_TYPE_SHA256 = "sha256"
 IOC_TYPE_DOMAIN = "domain"
 IOC_TYPE_EMAIL = "email"
@@ -17,7 +15,7 @@ IOC_TYPE_APP_ID = "app_id"
 IOC_MODELS = [
     {
         "type": IOC_TYPE_SHA256,
-        "validator": validator_sha256,
+        "validator": validators.sha256,
         "stix2_pattern": "[file:hashes.sha256='{value}']"
     },
     {
@@ -66,13 +64,13 @@ class IOC(object):
         self.ioc = self.ioc.strip().replace("[.]", ".").replace("[@]", "@")
 
     def detect(self):
-        for validator in IOC_MODELS:
-            if not validator.get("validator"):
+        for ioc_model in IOC_MODELS:
+            if not ioc_model.get("validator"):
                 continue
 
-            if validator["validator"](self.ioc):
-                self.ioc_type = validator.get("type")
-                self.stix2_pattern = validator.get("stix2_pattern")
+            if ioc_model["validator"](self.ioc):
+                self.ioc_type = ioc_model.get("type")
+                self.stix2_pattern = ioc_model.get("stix2_pattern")
                 return
 
     def stix2(self):
