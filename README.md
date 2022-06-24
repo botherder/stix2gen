@@ -18,6 +18,8 @@ Generate a STIX2 by automatically detecting the indicators types:
 $ cat domains.txt emails.txt | stix2gen --malware-name NewMalware
 ```
 
+You can also optionally provide a description using `--malware-desc`.
+
 Pipe the output to save to a file:
 
 ```bash
