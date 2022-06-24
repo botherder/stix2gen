@@ -26,6 +26,7 @@ def cli(malware_name, malware_desc, app_ids_file, source_file):
 
     malware = Malware(name=malware_name, description=malware_desc,
                       is_family=True)
+    objects.append(malware)
 
     for line in source_file.readlines():
         ioc = IOC(line)
